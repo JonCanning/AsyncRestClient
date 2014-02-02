@@ -4,10 +4,10 @@
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("SimpleAsyncClient")]
+[assembly: AssemblyTitle("AsyncRestClient")]
 [assembly: AssemblyDescription("A simple async REST client")]
 [assembly: AssemblyCompany("Jon Canning")]
-[assembly: AssemblyProduct("SimpleAsyncClient")]
+[assembly: AssemblyProduct("AsyncRestClient")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 
 // Version information for an assembly consists of the following four values:
@@ -22,4 +22,3 @@
 // [assembly: AssemblyVersion("1.0.*")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
