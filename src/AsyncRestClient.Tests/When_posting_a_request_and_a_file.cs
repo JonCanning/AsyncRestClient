@@ -14,11 +14,10 @@ namespace AsyncRestClient.Tests
     {
         readonly Dictionary<string, string> dto = new Dictionary<string, string>();
         string fileContent;
-        RestRequest request;
-        RestResponse response;
+        readonly RestRequest request;
+        readonly RestResponse response;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public When_posting_a_request_and_a_file()
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes("fileContent"));
             HttpClient.AddResponses(JsonNetSerializer.Serialize(new RestResponse { Address = "address" }));

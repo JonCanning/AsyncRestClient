@@ -8,11 +8,10 @@ namespace AsyncRestClient.Tests
     [TestFixture]
     class When_calling_send_with_a_request : AsyncClientFixture
     {
-        string requestJson;
-        RestResponse response;
+        readonly string requestJson;
+        readonly RestResponse response;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public When_calling_send_with_a_request()
         {
             HttpClient.AddResponses(JsonNetSerializer.Serialize(new RestResponse {Address = "address"}));
             var request = new RestRequest {UserName = "userName"};

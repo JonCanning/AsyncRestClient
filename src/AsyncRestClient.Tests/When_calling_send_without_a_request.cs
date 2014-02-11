@@ -10,8 +10,7 @@ namespace AsyncRestClient.Tests
     {
         RestResponse response;
 
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public When_calling_send_without_a_request()
         {
             HttpClient.AddResponses(JsonNetSerializer.Serialize(new RestResponse {Address = "address"}));
             response = AsyncClient.Send<RestResponse>(HttpMethod.Get, "requestUri").Result;

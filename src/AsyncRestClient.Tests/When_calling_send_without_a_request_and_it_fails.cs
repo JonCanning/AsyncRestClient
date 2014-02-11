@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -12,13 +13,13 @@ namespace AsyncRestClient.Tests
         bool onExceptionCalled;
         bool onUnsuccessfulCalled;
 
-        [TestFixtureSetUp]
-        public async void TestFixtureSetUp()
+
+        public When_calling_send_without_a_request_and_it_fails()
         {
             AsyncClient.OnUnsuccessful = x => onUnsuccessfulCalled = true;
             AsyncClient.OnException = x => onExceptionCalled = true;
             HttpClient.HttpStatusCode = HttpStatusCode.BadRequest;
-            await AsyncClient.Send<RestResponse>(HttpMethod.Get, "requestUri");
+            Task.WaitAll(AsyncClient.Send<RestResponse>(HttpMethod.Get, "requestUri"));
         }
 
         [Test]
