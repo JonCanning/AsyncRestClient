@@ -1,47 +1,32 @@
-﻿using System;
+﻿using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using AsyncRestClient;
 using FluentAssertions;
-using Newtonsoft.Json;
-using NSubstitute;
 using NUnit.Framework;
 
-namespace SimpleAsyncClient.Tests
+namespace AsyncRestClient.Tests
 {
     [TestFixture]
-    class When_calling_send_with_a_request
+    class When_calling_send_with_a_request : AsyncClientFixture
     {
-        string content;
-        IHttpClient httpClient;
-        RestRequest request;
+        string requestJson;
         RestResponse response;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            httpClient = Substitute.For<IHttpClient>();
-            httpClient.DefaultRequestHeaders.Returns(FormatterServices.GetUninitializedObject(typeof (HttpRequestHeaders)));
-            var asyncClient = new AsyncClient(httpClient, new JsonNetSerializer());
-            var restResponse = new RestResponse {Address = "address"};
-            httpClient.When(x => x.SendAsync(Arg.Any<HttpRequestMessage>()))
-                .Do(x => content = x.Arg<HttpRequestMessage>().Content.ReadAsStringAsync().Result);
-            var responseMessage = new HttpResponseMessage {Content = new StringContent(JsonConvert.SerializeObject(restResponse))};
-            Func<Task<HttpResponseMessage>> task = async () => responseMessage;
-            httpClient.SendAsync(Arg.Any<HttpRequestMessage>()).Returns(task());
-            request = new RestRequest {UserName = "userName"};
-            response = asyncClient.Send<RestRequest, RestResponse>(request, HttpMethod.Post, "requestUri").Result;
+            HttpClient.AddResponses(JsonNetSerializer.Serialize(new RestResponse {Address = "address"}));
+            var request = new RestRequest {UserName = "userName"};
+            requestJson = JsonNetSerializer.Serialize(request);
+            response = AsyncClient.Send<RestRequest, RestResponse>(request, HttpMethod.Post, "requestUri").Result;
         }
 
         [Test]
         public void Then_httpClient_is_called()
         {
-            httpClient.Received()
-                .SendAsync(
-                    Arg.Is<HttpRequestMessage>(
-                        x => x.RequestUri.ToString() == "requestUri" && x.Method == HttpMethod.Post && content == JsonConvert.SerializeObject(request)));
+            var httpRequestMessage = HttpClient.Requests.Single();
+            httpRequestMessage.RequestUri.Should().Be("requestUri");
+            httpRequestMessage.Method.Should().Be(HttpMethod.Post);
+            RequestContent.Should().Be(requestJson);
         }
 
         [Test]
@@ -50,4 +35,4 @@ namespace SimpleAsyncClient.Tests
             response.Address.Should().Be("address");
         }
     }
-}
+} ;

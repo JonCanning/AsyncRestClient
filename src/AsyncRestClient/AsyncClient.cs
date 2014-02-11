@@ -13,9 +13,9 @@ namespace AsyncRestClient
         readonly IHttpClient httpClient;
         readonly ISerializer serializer;
 
-        public AsyncClient(Uri baseAddress) : this(new HttpClient {BaseAddress = baseAddress}, new JsonNetSerializer()) {}
+        public AsyncClient(Uri baseAddress) : this(new HttpClient { BaseAddress = baseAddress }, new JsonNetSerializer()) { }
 
-        public AsyncClient(Uri baseAddress, ISerializer serializer) : this(new HttpClient {BaseAddress = baseAddress}, serializer) {}
+        public AsyncClient(Uri baseAddress, ISerializer serializer) : this(new HttpClient { BaseAddress = baseAddress }, serializer) { }
 
         public AsyncClient(IHttpClient httpClient, ISerializer serializer)
         {
@@ -48,17 +48,22 @@ namespace AsyncRestClient
             return await Send<TResponse>(HttpMethod.Get, requestUri);
         }
 
-        public async Task<TResponse> Post<TRequest, TResponse>(TRequest request, string requestUri) where TRequest : class where TResponse : class
+        public async Task<TResponse> Post<TRequest, TResponse>(TRequest request, string requestUri)
+            where TRequest : class
+            where TResponse : class
         {
             return await Send<TRequest, TResponse>(request, HttpMethod.Post, requestUri);
         }
 
-        public async Task<TResponse> Put<TRequest, TResponse>(TRequest request, string requestUri) where TRequest : class where TResponse : class
+        public async Task<TResponse> Put<TRequest, TResponse>(TRequest request, string requestUri)
+            where TRequest : class
+            where TResponse : class
         {
             return await Send<TRequest, TResponse>(request, HttpMethod.Put, requestUri);
         }
 
-        public async Task<TResponse> Send<TRequest, TResponse>(TRequest request, HttpMethod httpMethod, string requestUri) where TRequest : class
+        public async Task<TResponse> Send<TRequest, TResponse>(TRequest request, HttpMethod httpMethod, string requestUri)
+            where TRequest : class
             where TResponse : class
         {
             var content = new StringContent(serializer.Serialize(request), Encoding.UTF8, serializer.ContentType);
@@ -67,15 +72,13 @@ namespace AsyncRestClient
 
         public async Task<TResponse> Send<TResponse>(HttpMethod httpMethod, string requestUri, HttpContent content = null) where TResponse : class
         {
-            using (var httpRequestMessage = new HttpRequestMessage(httpMethod, requestUri))
-            {
-                httpRequestMessage.Content = content;
+            using (var httpRequestMessage = new HttpRequestMessage(httpMethod, requestUri) { Content = content })
                 return await Send<TResponse>(httpRequestMessage);
-            }
         }
 
         public async Task<TResponse> Post<TRequest, TResponse>(TRequest request, string requestUri, string fileName, Stream stream)
-            where TRequest : class where TResponse : class
+            where TRequest : class
+            where TResponse : class
         {
             using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri))
             using (var multipartFormDataContent = new MultipartFormDataContent())

@@ -1,4 +1,4 @@
-﻿namespace SimpleAsyncClient.Tests
+﻿namespace AsyncRestClient.Tests
 {
     public class RestResponse
     {

@@ -1,37 +1,24 @@
-﻿using System;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using AsyncRestClient;
 using FluentAssertions;
-using NSubstitute;
 using NUnit.Framework;
 
-namespace SimpleAsyncClient.Tests
+namespace AsyncRestClient.Tests
 {
     [TestFixture]
-    class When_calling_send_without_a_request_and_it_fails
+    class When_calling_send_without_a_request_and_it_fails : AsyncClientFixture
     {
-        IHttpClient httpClient;
         bool onExceptionCalled;
-        bool requestHasFailed;
+        bool onUnsuccessfulCalled;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public async void TestFixtureSetUp()
         {
-            httpClient = Substitute.For<IHttpClient>();
-            httpClient.DefaultRequestHeaders.Returns(FormatterServices.GetUninitializedObject(typeof (HttpRequestHeaders)));
-            var asyncClient = new AsyncClient(httpClient, new JsonNetSerializer())
-            {
-                OnUnsuccessful = x => requestHasFailed = true,
-                OnException = x => onExceptionCalled = true
-            };
-            var responseMessage = new HttpResponseMessage {StatusCode = HttpStatusCode.BadRequest};
-            Func<Task<HttpResponseMessage>> task = async () => responseMessage;
-            httpClient.SendAsync(Arg.Any<HttpRequestMessage>()).Returns(task());
-            var response = asyncClient.Send<RestResponse>(HttpMethod.Get, "requestUri").Result;
+            AsyncClient.OnUnsuccessful = x => onUnsuccessfulCalled = true;
+            AsyncClient.OnException = x => onExceptionCalled = true;
+            HttpClient.HttpStatusCode = HttpStatusCode.BadRequest;
+            await AsyncClient.Send<RestResponse>(HttpMethod.Get, "requestUri");
         }
 
         [Test]
@@ -43,15 +30,16 @@ namespace SimpleAsyncClient.Tests
         [Test]
         public void Then_OnUnsuccessful_is_called()
         {
-            requestHasFailed.Should().BeTrue();
+            onUnsuccessfulCalled.Should().BeTrue();
         }
 
         [Test]
         public void Then_httpClient_is_called()
         {
-            httpClient.Received()
-                .SendAsync(
-                    Arg.Is<HttpRequestMessage>(x => x.RequestUri.ToString() == "requestUri" && x.Method == HttpMethod.Get && x.Content == null));
+            var httpRequestMessage = HttpClient.Requests.Single();
+            httpRequestMessage.RequestUri.Should().Be("requestUri");
+            httpRequestMessage.Method.Should().Be(HttpMethod.Get);
+            RequestContent.Should().Be(null);
         }
     }
 }
